@@ -3,15 +3,15 @@
 function Scan-LOLDrivers{
     param(
         [Parameter(Mandatory = $true)]
-        [string]$path
-        [string]$output
-    )
+        [string]$output,
+        [string]$filename)
 
     <#
         .NOTES
         Author:     Koos Janse
         Date:       10/07/2023
         Website:    https://www.koosjanse.com
+        I modified the script the original script was written by someone else. 
         #OG Script taken from Repo: 
 
         .SYNOPSIS
@@ -27,9 +27,6 @@ function Scan-LOLDrivers{
         .PARAMETER Output
         Specifies the directory in which to store the output of the function. Such as a C:\Users\Public. 
 
-        .PARAMETER Path
-        Specifies the directory path to be scanned for drivers.
-
         .OUTPUTS
         CSV file with drivers that match against the LOLDriver list.
 
@@ -43,12 +40,15 @@ function Scan-LOLDrivers{
         Set-Item
     #>
 
+    Start-Transcript -Path $output\$filename -Append -Verbose
+
     Add-Type -TypeDefinition @"
     using System;
     using System.Security.Cryptography;
     using System.Security.Cryptography.X509Certificates;
     using System.IO;
     using System.Text;
+    
     public class FileHashScanner {
         public static string ComputeSha256(string path) {
             try {
@@ -74,8 +74,13 @@ function Scan-LOLDrivers{
 
     Write-Host "Downloading drivers.json..."
     $driversJsonUrl = "https://www.loldrivers.io/api/drivers.json"
-    $driversJsonContent = Invoke-WebRequest -Uri $driversJsonUrl
-    $driverData = $driversJsonContent.Content | ConvertFrom-Json
+    $driversJsonContent = Invoke-WebRequest -Uri $driversJsonUrl -UseBasicParsing
+    $driverData = $driversJsonContent.Content | ConvertFrom-Json -AsHashtable
+
+    $serializer = [Web.Script.Serialization.JavaScriptSerializer]::new()
+    $json = $serializer.Deserialize($jsonstring, [hashtable])
+    $json['d']['results']
+
     Write-Host "Download complete."
 
     Write-Host "Building correlation tables"
@@ -111,11 +116,17 @@ function Scan-LOLDrivers{
             if ($fileAuthenticodeHash -and $authenticodeHashes.ContainsKey($fileAuthenticodeHash)) {
                 Write-Host "Authenticode hash match found: $filePath with hash $fileAuthenticodeHash (matches $($authenticodeHashes[$fileAuthenticodeHash]))"
             }
-        }
+        } -Verbose
     }
 
-    Write-Host "Starting scan..."
-    Scan-Directory -directory $path
-    Write-Host "Scan complete."
+    $folders = @(
+    "C:\WINDOWS\inf",
+    "C:\WINDOWS\System32\drivers",
+    "C:\WINDOWS\System32\DriverStore\FileRepository")
 
+    foreach($folder in $folders){
+    Scan-Directory -directory $folder
+    }
+
+    Stop-Transcript
 }
