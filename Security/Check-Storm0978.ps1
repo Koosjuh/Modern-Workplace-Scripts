@@ -159,7 +159,7 @@ function Get-Storm0978Status{
     ##Remediation
     try {
         # Check if the "VulnerabilityStatus" is "Protected"
-        if ($jsonContent.VulnerabilityStatus -eq "Protected") {
+        if ($overallStatus -eq "Protected") {
             Write-Host "Vulnerability Status: Protected"
             Stop-Transcript
             # Exit with code 0 (success)
@@ -172,7 +172,7 @@ function Get-Storm0978Status{
         }
     }
     catch {
-        Write-Host "Error reading or processing the JSON log file."
+        Write-Host "Error reading or processing the log file."
         Stop-Transcript
         # Exit with code 1 (failure)
         Exit 1
