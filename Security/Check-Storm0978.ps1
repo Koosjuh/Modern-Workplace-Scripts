@@ -44,7 +44,7 @@ function Get-Storm0978Status{
         JSON Data for Log Analytics in Azure.
 
         .EXAMPLE
-        PS> Check-Storm0978 -Output "C:\User\Public" -workspaceid 815158-1SAF235t-saRF252 -sharkedkey 02567u802sadgf3qy6gargtyw34
+        PS> Get-Storm0978 -Output "C:\User\Public" -workspaceid 815158-1SAF235t-saRF252 -sharkedkey 02567u802sadgf3qy6gargtyw34
 
         .LINK
         write up can be found: http://www.koosjanse.com
@@ -126,6 +126,8 @@ function Get-Storm0978Status{
     Write-Host "Log file path: $output\Storm-0978_AzLogAn_$(get-date -f yyyy-MM-dd).log"
     Write-Host "Transcript of script path: $output\$filename"
 
+    Write-Host("LOG ANALYTICS ")
+    ## LOG ANALYTICS 
     $apiVersion = "2016-04-01"
     $logType = "MyCustomLog"
 
@@ -152,6 +154,29 @@ function Get-Storm0978Status{
         "x-ms-date" = $date
         #"time-generated-field" = ""  # Replace with the name of the timestamp field in your JSON data
     } -ContentType $contentType -Body $jsonContent
+
+    Write-Host("Remediation")
+    ##Remediation
+    try {
+        # Check if the "VulnerabilityStatus" is "Protected"
+        if ($jsonContent.VulnerabilityStatus -eq "Protected") {
+            Write-Host "Vulnerability Status: Protected"
+            Stop-Transcript
+            # Exit with code 0 (success)
+            Exit 0
+        } else {
+            Write-Host "Vulnerability Status: Not Protected"
+            Stop-Transcript
+            # Exit with code 1 (failure)
+            Exit 1
+        }
+    }
+    catch {
+        Write-Host "Error reading or processing the JSON log file."
+        Stop-Transcript
+        # Exit with code 1 (failure)
+        Exit 1
+    }
 
     Stop-Transcript
 }
