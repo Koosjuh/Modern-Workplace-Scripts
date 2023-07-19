@@ -4,7 +4,9 @@
 function Get-Storm0978Status{
     param(
         [Parameter(Mandatory = $true)]
-        [string]$output
+        [string]$output,
+        [string]$workspaceId,
+        [string]$sharedKey
         )
 
     <#
@@ -47,9 +49,6 @@ function Get-Storm0978Status{
     $filename = "Storm-0978_Runtime_$(get-date -f yyyy-MM-dd).log"
 
     Start-Transcript -Path $output\$filename -Append -Verbose
-
-    $workspaceId = ""
-    $sharedKey = ""
 
     $securityChecks = @()
 
