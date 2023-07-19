@@ -32,6 +32,9 @@ function Get-Storm0978Status{
         -Block all Office applications from creating child processes
 
         Below are the guids listed and 1 means enabled and 2 means enabled and locked so user can not change it.
+
+        To have the log analytics part running an Azure Monitoring Agent or Microsoft Monitoring Agent needs to be deployed to the devices. These Agents have shared keys and you need to 
+        paste the Primary key. Workspace ID is the id of the workspace you want to send the logs to.
         
         .PARAMETER Output
         Specifies the directory in which to store the output of the function. Such as a C:\Users\Public. 
