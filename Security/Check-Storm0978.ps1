@@ -66,7 +66,7 @@ function Get-Storm0978Status{
     $registryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Policy Manager"
     $PSEXEC = Get-ItemProperty -Path $registryPath -Name "ASRRules"
 
-    $psexecRulesFound = $PSEXEC."ASRRules" -contains "d1e49aac-8f56-4280-b9ba-993a6d77406c=1" -or $PSEXEC."ASRRules" -contains "d1e49aac-8f56-4280-b9ba-993a6d77406c=2"
+    $psexecRulesFound = $PSEXEC."ASRRules" -like "*d1e49aac-8f56-4280-b9ba-993a6d77406c=1*" -or $PSEXEC."ASRRules" -like "*d1e49aac-8f56-4280-b9ba-993a6d77406c=2*"
 
     $securityChecks += @{
         'Check' = 'PSEXEC and WMI Blocked processes'
@@ -77,7 +77,7 @@ function Get-Storm0978Status{
     $registryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Policy Manager"
     $asrRules = Get-ItemProperty -Path $registryPath -Name "ASRRules"
 
-    $asrRulesFound = $asrRules."ASRRules" -contains "01443614-cd74-433a-b99e-2ecdc07bfc25=1" -or $asrRules."ASRRules" -contains "01443614-cd74-433a-b99e-2ecdc07bfc25=2"
+    $asrRulesFound = $asrRules."ASRRules" -like "*01443614-cd74-433a-b99e-2ecdc07bfc25=1*" -or $asrRules."ASRRules" -like  "*01443614-cd74-433a-b99e-2ecdc07bfc25=2*"
 
     $securityChecks += @{
         'Check' = 'Block executable files from running unless they meet a prevalence, age, or trusted list criterion'
@@ -87,21 +87,15 @@ function Get-Storm0978Status{
 
     # Advanced protection against ransomware
     $advancedProtectionEnabled = (Get-MpPreference).EnableControlledFolderAccess
-    If ($advancedProtectionEnabled -eq 2 -or $advancedProtectionEnabled -eq 1) {
-        $advancedProtectionSecCheck = $True
-    } else {
-        $advancedProtectionSecCheck = $False
+    $advancedProtectionSecCheck = $advancedProtectionEnabled -eq 1 -or $advancedProtectionEnabled -eq 2
+
+    $securityChecks += @{
+        'Check' = 'Advanced Protection against Ransomware'
+        'Status' = $advancedProtectionSecCheck
     }
 
-$securityChecks += @{
-    'Check' = 'Advanced Protection against Ransomware'
-    'Status' = $advancedProtectionSecCheck
-}
-
-
     # Blocking of Child Processes for Office Applications
-    $officeChildProcessEnabled = $asrRules."ASRRules" -contains "d4f940ab-401b-4efc-aadc-ad5f3c50688a=1" -or `
-    $asrRules."ASRRules" -contains "d4f940ab-401b-4efc-aadc-ad5f3c50688a=2"
+    $officeChildProcessEnabled = $asrRules."ASRRules" -like  "*d4f940ab-401b-4efc-aadc-ad5f3c50688a=1*" -or $asrRules."ASRRules" -like  "*d4f940ab-401b-4efc-aadc-ad5f3c50688a=2*"
 
     $securityChecks += @{
     'Check' = 'Blocking of Child Processes for Office Applications'
@@ -110,7 +104,7 @@ $securityChecks += @{
 
     # Overall vulnerability status
     $vulnerable = $securityChecks | Where-Object { $_.Status -eq $False }
-    $overallStatus = if ($vulnerable) { 'Vulnerable' } else { 'Protected' }
+    $overallStatus = if ($vulnerable.Count -gt 0) { 'Vulnerable' } else { 'Protected' }
 
     # Create log file
     $logFile = @{
