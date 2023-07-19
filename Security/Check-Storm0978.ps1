@@ -40,10 +40,11 @@ function Get-Storm0978Status{
         Specifies the directory in which to store the output of the function. Such as a C:\Users\Public. 
 
         .OUTPUTS
-        Log file - Transcript. With the following name: Storm-0978_Runtime_(YEAR-Month-Day).log
+        2 local files a Log file and Transcript. With the following name: Storm-0978_Runtime_(YEAR-Month-Day).log
+        JSON Data for Log Analytics in Azure.
 
         .EXAMPLE
-        PS> Check-Storm0978 -Output "C:\User\Public"
+        PS> Check-Storm0978 -Output "C:\User\Public" -workspaceid 815158-1SAF235t-saRF252 -sharkedkey 02567u802sadgf3qy6gargtyw34
 
         .LINK
         write up can be found: http://www.koosjanse.com
@@ -126,7 +127,7 @@ function Get-Storm0978Status{
     Write-Host "Transcript of script path: $output\$filename"
 
     $apiVersion = "2016-04-01"
-    $logType = "MyCustomLog"  # e.g., "MyCustomLog"
+    $logType = "MyCustomLog"
 
     # Read the JSON file
     $jsonFilePath = "$output\Storm-0978_AzLogAn_$(get-date -f yyyy-MM-dd).log"
