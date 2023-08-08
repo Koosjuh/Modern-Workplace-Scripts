@@ -30,12 +30,20 @@ function Create-DynamicDepartmentGroups
     #Start processing and creating dynamic groups
     foreach ($department in $departmentarray){
 
+        #keep original department name for query later in code
+        $ogdepartmentname = $department
+
+        
+        #format department variable into workable no space no comma string
+        $department = $department -replace '\s',''
+        $department = $department -replace ',',''
+        
         #Vars for naming convention Check for spaces and commas etc.
-        $displayname = "$department | Department"
-        $mailnickname = "MW-$department-DynamicGroup"
+        $displayname = "MW-P-DEP-$department"
+        $mailnickname = "MW-$department-DynamicDepartmentGroup"
         
         #Create new Azure AD Dynamic Group based on Department and vars
-        New-AzureADMSGroup -DisplayName $displayname -Description "Dynamic Group for department: $department" -MailEnabled $False -MailNickname $mailnickname -SecurityEnabled $True -GroupTypes "DynamicMembership" -membershipRule "(user.department -contains ""$department"")" -membershipRuleProcessingState "On" -Verbose
+        New-AzureADMSGroup -DisplayName $displayname -Description "Dynamic Group for department: $ogdepartmentname" -MailEnabled $False -MailNickname $mailnickname -SecurityEnabled $True -GroupTypes "DynamicMembership" -membershipRule "(user.department -eq ""$ogdepartmentname"")" -membershipRuleProcessingState "On" -Verbose
 
     }
 

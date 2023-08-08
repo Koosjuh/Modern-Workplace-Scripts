@@ -16,7 +16,7 @@ function New-BatchDeploymentGroups{
 
     Connect-MgGraph -Scopes Microsoft.Graph.Group
     
-    $group = Get-MgGroupMember -GroupId #ID
+    $group = Get-MgGroupMember -GroupId 57975938-4a5c-4ba3-8d9d-71168dee20d9
     
     foreach ($user in $group) {
         
@@ -24,7 +24,7 @@ function New-BatchDeploymentGroups{
         
         if($userdevices){
             foreach($device in $userdevices){
-                New-MgGroupMember -GroupId <#ID#> -DirectoryObjectId $device.id
+                New-MgGroupMember -GroupId "b95ee33a-5e47-4885-b30b-0ff48b9fc066" -DirectoryObjectId $device.id
             }
         }else{
             $Displayname = Get-MgUser -UserId $user.id | Select-Object -Property Displayname

@@ -26,7 +26,7 @@ function Uninstall-AllVersionsofApplication
 
     foreach ($key in $uninstallKeys) {
         if ($key.GetValue("Displayname") -in $displayNames) {
-            Write-Host "Found Tableau version: ($key.getvalue("Version")"
+            Write-Host "Found: ($key.getvalue("Version")"
             
             $path = $key.name
 
