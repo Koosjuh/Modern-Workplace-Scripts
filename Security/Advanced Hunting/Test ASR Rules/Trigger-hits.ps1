@@ -37,6 +37,10 @@ Register-WmiEvent -Query $Query -SourceIdentifier "TestWMIEvent" -Action {
     Write-Host "Test WMI event triggered"
 }
 
+##Do this to stop the cycle
+Unregister-Event -SourceIdentifier "TestWMIEvent"
+
+
 ############
 ## RULE 3 ##
 ############
