@@ -1,0 +1,30 @@
+DeviceEvents
+| where ActionType in (
+    'AsrExecutableEmailContentAudited',
+    'AsrExecutableOfficeContentAudited',
+    'AsrAdobeReaderChildProcessAudited',
+    'AsrObfuscatedScriptAudited',
+    'AsrOfficeChildProcessAudited',
+    'AsrOfficeMacroWin32ApiCallsAudited',
+    'AsrOfficeProcessInjectionAudited',
+    'AsrPsexecWmiChildProcessAudited',
+    'AsrUntrustedExecutableAudited',
+    'AsrRansomwareAudited',
+    'AsrUntrustedUsbProcessAudited',
+    'AsrVulnerableSignedDriverAudited',
+    'AsrScriptExecutableDownloadAudited',
+    'AsrPersistenceThroughWmiAudited',
+    'AsrOfficeCommAppChildProcessAudited'
+)
+| project 
+    Timestamp,
+    DeviceName,
+    ActionType,
+    FileName,
+    FolderPath,
+    AccountName,
+    AccountDomain,
+    InitiatingProcessFileName,
+    InitiatingProcessFolderPath,
+    InitiatingProcessCommandLine
+| order by Timestamp desc
