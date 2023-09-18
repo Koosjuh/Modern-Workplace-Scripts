@@ -1,0 +1,38 @@
+DeviceTvmSecureConfigurationAssessment
+| where ConfigurationId in ("scid-2500", "scid-2501", "scid-2502", "scid-2503", "scid-2504", "scid-2505", "scid-2506", "scid-2507", "scid-2508", "scid-2509", "scid-2510","scid-2511","scid-2512","scid-2513","scid-2514", "scid-2515", "scid-2021", "scid-2010", "scid-2080")
+| extend Test = case(
+ConfigurationId == "scid-2010", "AntivirusEnabled",
+ConfigurationId == "scid-2500", "BlockMailExe",
+ConfigurationId == "scid-2501", "BlockOfficeChildProc",
+ConfigurationId == "scid-2502", "BlockOfficeExe",
+ConfigurationId == "scid-2503", "BlockOfficeInjection",
+ConfigurationId == "scid-2504", "BlockJavaScriptVBScriptExe",
+ConfigurationId == "scid-2505", "BlockObfuscatedScripts",
+ConfigurationId == "scid-2506", "BlockOfficeMacroW32API",
+ConfigurationId == "scid-2507", "BlockUntrustedExecutables",
+ConfigurationId == "scid-2508", "AdvancedRansomwareProtection",
+ConfigurationId == "scid-2509", "BlockCredentialStealing",
+ConfigurationId == "scid-2510", "BlockProcPSexecWMI",
+ConfigurationId == "scid-2511", "BlockUnsignedEXEonUSB",
+ConfigurationId == "scid-2512", "BlockOfficeCommunicationChildProc",
+ConfigurationId == "scid-2513", "BlockAdobeReaderChildProc",
+ConfigurationId == "scid-2514", "BlockWMIPersist",
+ConfigurationId == "scid-2515", "BlockExploitedVulnerableSignedDrivers",
+ConfigurationId == "scid-2021", "ControlledFolderAccess",
+ConfigurationId == "scid-2080", "CredentialGuard",
+"N/A"),
+Result = case(
+IsApplicable == 0, "N/A",
+IsCompliant == 1, "Enabled",
+Context contains "Audit", "Audit",
+Context contains "Enabled", "Enabled",
+Context contains "Block", "Block",
+Context contains "Off", "Off",
+"N/A")
+| extend packed = pack(Test, Result)
+| summarize Tests = make_bag(packed), DeviceName = any(DeviceName), OSPlatform = any(OSPlatform) by DeviceId
+| evaluate bag_unpack(Tests)
+| where AntivirusEnabled == "Enabled"
+| join kind=leftouter (DeviceInfo
+| distinct DeviceId, MachineGroup, OnboardingStatus) on DeviceId
+| where OnboardingStatus == "Onboarded"
