@@ -1,19 +1,28 @@
 #Requires -Version 5.1.19041.3031
-function Remediation-AdobeTaskPrincipalEULA
-{
+function Remediation-AdobeTaskPrincipalEULA {
     param ()
 
-    <#
+     <#
+        .SYNOPSIS
+        Remediate the Adobe Acrobat Reader configuration to ensure the EULA is accepted and the scheduled update task runs with SYSTEM privileges. 
+        If remediation is required, this script sets the necessary configurations. Run as SYSTEM.
+
+        .DESCRIPTION
+        This PowerShell function performs the following tasks:
+
+        1. Checks if the Adobe Acrobat Reader End-User License Agreement (EULA) is accepted by examining the Windows Registry.
+        2. Verifies if the scheduled Adobe Acrobat Reader update task runs with SYSTEM privileges.
+        3. If any of these conditions are not met, the function takes remedial action to set the necessary configurations.
+        
+        The function logs its activities in a hidden log folder within the user's profile directory.
+        
         .NOTES
         Author: Koos Janse
         Date: 08/09/2023
-        website: https://www.koosjanse.com
+        Website: https://www.koosjanse.com
         
-        .SYNOPSIS
-        Set scheduled task to system in order for adobe to perform regular updates and no more need for packages. Run as System.
-
         .LINK
-        Online version: https://www.koosjanse.com/ 
+        Online version: https://www.koosjanse.com/
     #>
 
     # Create Log folder in user profile and hide it
@@ -36,14 +45,25 @@ function Remediation-AdobeTaskPrincipalEULA
     $registryResult = $null
     $taskResult = $null
 
-    # Check if the registry key exists and get its value
-    if (Test-Path -Path $RegistryPath) {
-        $registryValue = (Get-ItemProperty -Path $RegistryPath).$RegistryName
-        $registryResult = "Registry Value: $registryValue"
-    } else {
-        $registryResult = "Registry Key does not exist"
-    }
 
+    # Check if the registry path exists
+    if (Test-Path -Path $RegistryPath) {
+        Write-Host "Registry path exists."
+        # If the path exists, check if the registry key exists
+        if ((Get-Item -Path $RegistryPath).property -eq "EULA") {
+            write-host("EULA key Exists")
+            if ((Get-ItemProperty -Path $RegistryPath).$RegistryName -eq "1") {
+                $registryValue = (Get-ItemProperty -Path $RegistryPath).$RegistryName
+                $registryResult = "Registry Value: $registryValue"
+            } else {
+                $registryResult = "Registry Key does not exist"
+            }
+        } else {
+            # The registry path does not exist
+            Write-Host "Registry path $RegistryPath does not exist."
+        }
+    }
+    
     # Check if the registry value is not as desired, and if so, set it
     if ($registryValue -ne $DesiredValue) {
         Set-ItemProperty -Path $RegistryPath -Name $RegistryName -Value $DesiredValue
@@ -72,7 +92,7 @@ function Remediation-AdobeTaskPrincipalEULA
         # Ensure that the transcript is stopped before exiting
         Stop-Transcript
         exit 0  # Success
-    } else {
+        } else {
         # At least one condition is not met
         Write-Output "Adobe Reader EULA or Task Schedule Principal is not as desired."
         Write-Output "$registryResult"
@@ -81,6 +101,8 @@ function Remediation-AdobeTaskPrincipalEULA
         Stop-Transcript
         exit 1  # Remediation failed
     }
+    }
+
 }
 
 Remediation-AdobeTaskPrincipalEULA
