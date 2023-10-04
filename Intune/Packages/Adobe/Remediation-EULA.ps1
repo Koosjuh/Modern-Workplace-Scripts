@@ -1,5 +1,5 @@
 #Requires -Version 5.1.19041.3031
-function Remediation-AdobeTaskPrincipalEULA {
+function Remediation-AdobeEULA {
     param ()
 
      <#
@@ -27,7 +27,7 @@ function Remediation-AdobeTaskPrincipalEULA {
 
     # Create Log folder in user profile and hide it
     $logfolder = "$env:Public\WorkplacePowershellLogs"
-    $logfile = "Update-Adobe-Remediation.log"
+    $logfile = "Adobe-Remediation-EULA.log"
 
     if (!(Test-Path -Path $logfolder)) {
         New-Item -ItemType Directory -Path $logfolder
@@ -43,8 +43,6 @@ function Remediation-AdobeTaskPrincipalEULA {
 
     # Initialize variables to track results
     $registryResult = $null
-    $taskResult = $null
-    $endresultEULA = $null
 
 
     if (Test-Path -Path $RegistryPath) {
@@ -57,15 +55,12 @@ function Remediation-AdobeTaskPrincipalEULA {
             if ((Get-ItemProperty -Path $RegistryPath).$RegistryName -eq "1") {
                 $registryValue = (Get-ItemProperty -Path $RegistryPath).$RegistryName
                 $registryResult = "Registry Value: $registryValue"
-                $endresultEULA = $true
             } else {
                 $registryResult = "Registry Key is not set to accept"
-                $endresultEULA = $false
             }
         } else {
             # The registry path does not exist
             Write-Host "Registry path $RegistryPath does not exist."
-            $endresultEULA = $false
         }
     }
     
@@ -75,37 +70,23 @@ function Remediation-AdobeTaskPrincipalEULA {
         $registryResult = "Registry Value set to $DesiredValue"
     }
 
-    # Get the current task principal
-    $principal = Get-ScheduledTask -TaskName "Adobe Acrobat Update Task" | Select-Object -ExpandProperty Principal
-    # Define the desired SYSTEM principal
-    $DesiredPrincipal = New-ScheduledTaskPrincipal -UserId 'NT AUTHORITY\SYSTEM' -RunLevel Highest
-
-    # Check if the task principal is not as desired, and if so, set it
-    if ($principal.Userid -ne $DesiredPrincipal.Userid) {
-        Set-ScheduledTask -TaskName "Adobe Acrobat Update Task" -User $DesiredPrincipal.Userid -Verbose
-        $taskResult = "Task Schedule Principal set to SYSTEM"
-    } else {
-        $taskResult = "Task Schedule Principal is already SYSTEM"
-    }
 
     # Compare the outcomes for exit and remediation
-    if ($registryValue -eq $DesiredValue -and $principal.Userid -eq $DesiredPrincipal.Userid) {
+    if ($registryValue -eq $DesiredValue) {
         # Both conditions are met
-        Write-Output "Adobe Reader EULA and Task Schedule Principal are as desired."
+        Write-Output "Adobe Reader EULA as desired."
         Write-Output "$registryResult"
-        Write-Output "$taskResult"
         # Ensure that the transcript is stopped before exiting
         Stop-Transcript
         exit 0  # Success
         } else {
         # At least one condition is not met
-        Write-Output "Adobe Reader EULA or Task Schedule Principal is not as desired."
+        Write-Output "Adobe Reader EULA is not as desired."
         Write-Output "$registryResult"
-        Write-Output "$taskResult"
         # Ensure that the transcript is stopped before exiting
         Stop-Transcript
         exit 1  # Remediation failed
     }
 }
 
-Remediation-AdobeTaskPrincipalEULA
+Remediation-AdobeEULA

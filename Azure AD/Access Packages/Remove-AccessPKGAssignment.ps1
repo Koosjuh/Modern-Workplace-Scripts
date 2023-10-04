@@ -34,8 +34,8 @@ function Remove-AccessPackageAssignments
     #This is where the magic happens. Please always use caution when using scripts. Please make sure you read it and understand the purpose. Also Might want to do a single test before using a foreach loop. :)
     foreach ($member in $members){
         $assignments = Get-MgEntitlementManagementAccessPackageAssignment -Filter "accessPackageId eq '$accesspkgobjectid' and assignmentState eq 'Delivered'" -All -ErrorAction Stop
-        $user = Get-AzureADUser -Searchstring "$Member"    
-        $toRemove = $assignments | Where-Object {$_.targetId -eq $user.objectId}
+        $user = get-mguser -filter "Userprincipalname eq '$member'"
+        $toRemove = $assignments | Where-Object {$_.targetId -eq $user.Id}
         New-MgEntitlementManagementAccessPackageAssignmentRequest -AccessPackageAssignmentId $toRemove.Id -RequestType "AdminRemove" -Verbose
     }
 }

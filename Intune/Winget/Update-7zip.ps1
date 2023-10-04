@@ -1,6 +1,6 @@
 #Create Log folder in userprofile and hide it
 $logfolder = "$env:Public\WorkplacePowershellLogs"
-$logfile = "Upgrade-Zoom-Winget.log"
+$logfile = "Upgrade-7zip-Winget.log"
 
 if(!(Test-Path -path $logfolder)){
     New-Item -ItemType Directory -Path $logfolder
@@ -17,6 +17,6 @@ $ResolveWingetPath = Resolve-Path "C:\Program Files\WindowsApps\Microsoft.Deskto
 $config
 
 Set-Location $wingetpath
-.\winget.exe upgrade --exact --id Zoom.Zoom --silent --force --accept-package-agreements --accept-source-agreements
+.\winget.exe upgrade 7zip.7zip --accept-source-agreements --accept-package-agreements
 
 Stop-Transcript
