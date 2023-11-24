@@ -1,0 +1,2 @@
+DeviceFileCertificateInfo
+| where Signer == Issuer and IsTrusted == 1

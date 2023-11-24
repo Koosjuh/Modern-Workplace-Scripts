@@ -1,0 +1,1 @@
+Export-M365DSCConfiguration -Components @("AADConditionalAccessPolicy") -ApplicationId $ApplicationId -CertificateThumbprint $CertificateThumbprint -TenantId $TenantId

@@ -34,8 +34,8 @@ function start-leftMenu {
     
     $explorerPath = "HKCU:Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
     
-    if(Test-Path $explorerPath) {
-        Set-ItemProperty -Path $explorerPath -Name TaskbarAl -Value 0
+    if(Test-Path $explorerPath -Verbose) {
+        Set-ItemProperty -Path $explorerPath -Name TaskbarAl -Value 0 -Verbose
     }
     
     $checkStart = Get-ItemProperty -Path $explorerPath -Name TaskbarAl
